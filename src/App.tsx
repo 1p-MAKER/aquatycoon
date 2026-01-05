@@ -13,6 +13,7 @@ function App() {
   const coins = useGameStore((state) => state.user.coins);
   const lightMode = useGameStore((state) => state.environment.lightMode);
   const toggleLightMode = useGameStore((state) => state.toggleLightMode);
+  const marketTrend = useGameStore((state) => state.marketTrend);
 
   const isViewMode = useUIStore((state) => state.isViewMode);
   const toggleViewMode = useUIStore((state) => state.toggleViewMode);
@@ -39,7 +40,7 @@ function App() {
         <div className="ui-overlay">
           <h1>{t('welcome')}</h1>
           <p style={{ marginTop: 10 }}>Coins: {coins}</p>
-          <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Market: x{useGameStore((state) => state.marketTrend).toFixed(2)}</p>
+          <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Market: x{marketTrend.toFixed(2)}</p>
         </div>
       )}
 
