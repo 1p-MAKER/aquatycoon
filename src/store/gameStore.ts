@@ -53,7 +53,8 @@ export const FISH_TYPES: Record<string, {
             color: '#00ffff', // Cyan glow
             pattern: 'striped',
             scaleType: 'luminescent',
-            textureInfo: '/textures/neon_tetra.png'
+            textureInfo: '/textures/neon_tetra_sheet.png',
+            spriteConfig: { rows: 3, cols: 1, frames: 3 }
         }
     }
 };

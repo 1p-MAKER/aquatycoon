@@ -15,11 +15,15 @@ const ChromaKeyShader = {
     uniforms: {
         texture1: { value: null },
         uColor: { value: new Vector3(1, 1, 1) }, // Default white (no tint)
+        uRepeat: { value: [1, 1] }, // Default full texture
+        uOffset: { value: [0, 0] }  // Default no offset
     },
     vertexShader: `
     varying vec2 vUv;
+    uniform vec2 uRepeat;
+    uniform vec2 uOffset;
     void main() {
-      vUv = uv;
+      vUv = uv * uRepeat + uOffset;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
@@ -34,8 +38,6 @@ const ChromaKeyShader = {
       if (brightness < 0.2) discard;
       
       // Apply tint (multiply texture color by gene color)
-      // Mix original with tinted based on how strong we want the effect. 
-      // For now, simple multiplication.
       gl_FragColor = vec4(texColor.rgb * uColor, texColor.a); 
     }
   `
@@ -43,6 +45,7 @@ const ChromaKeyShader = {
 
 export const FishMesh = ({ fish }: FishMeshProps) => {
     const meshRef = useRef<Mesh>(null);
+    const materialRef = useRef<any>(null); // Ref for ShaderMaterial
     const { playSE } = useSound();
     const openFishInfo = useUIStore((state) => state.openFishInfo);
 
@@ -50,6 +53,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     const [signal, setSignal] = useState<string | null>(null);
 
     const texture = useTexture(fish.genes.textureInfo || '/textures/goldfish.png');
+    texture.minFilter = 1003; // NearestFilter for pixel art crispness? (Actually 1006 is Linear, 1003 is Nearest)
+    // Three.js constants: NearestFilter = 1003. 
 
     // Parse gene color (hex to normalized rgb)
     const geneColor = useMemo(() => {
@@ -60,22 +65,24 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
         return new Vector3(r, g, b);
     }, [fish.genes.color]);
 
+    const spriteConfig = fish.genes.spriteConfig;
+
     // Create shader material
     const shaderArgs = useMemo(() => ({
         uniforms: {
             texture1: { value: texture },
-            uColor: { value: geneColor }
+            uColor: { value: geneColor },
+            uRepeat: { value: spriteConfig ? [1 / spriteConfig.cols, 1 / spriteConfig.rows] : [1, 1] },
+            uOffset: { value: [0, 0] }
         },
         vertexShader: ChromaKeyShader.vertexShader,
         fragmentShader: ChromaKeyShader.fragmentShader,
         transparent: true,
         side: DoubleSide
-    }), [texture, geneColor]);
+    }), [texture, geneColor, spriteConfig]);
 
     // Deterministic random position based on ID
-    // Extract numbers from ID to use as seed, fallback to random
     const seed = parseFloat(fish.id.replace(/[^0-9]/g, '').slice(-4) || '0') / 10000;
-    // Initial positions: X between -2 and 2, Y between -2 and 2
     const initialX = (seed * 4) - 2 || (Math.random() - 0.5) * 4;
     const initialY = ((seed * 100) % 4) - 2 || (Math.random() - 0.5) * 4;
 
@@ -86,9 +93,21 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
         const offset = seed * 10; // Unique offset
 
         // Organic floating movement
-        // Wider boundaries for Landscape mode (X: -6 to 6, Y: -3 to 3)
         meshRef.current.position.y = initialY + Math.sin(time + offset) * 0.3;
         meshRef.current.position.x = initialX + Math.sin(time * 0.3 + offset) * 0.6;
+
+        // Handle Sprite Animation
+        if (spriteConfig && materialRef.current) {
+            const speed = 8; // Animation FPS
+            const totalFrames = spriteConfig.frames;
+            const frame = Math.floor(time * speed) % totalFrames;
+
+            // Vertical strip animation (Top to Bottom)
+            const row = frame % spriteConfig.rows;
+            const offsetY = (spriteConfig.rows - 1 - row) / spriteConfig.rows;
+
+            materialRef.current.uniforms.uOffset.value = [0, offsetY];
+        }
 
         // Spin animation or Direction flip
         if (isSpinning) {
@@ -99,6 +118,9 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
             }
         } else {
             // Flip based on direction
+            // If sprite faces LEFT:
+            // Moving Right (+X) -> V > 0 -> Need to face Right -> FLIP (PI)
+            // Moving Left (-X) -> V < 0 -> Need to face Left -> DEFAULT (0)
             const isMovingRight = Math.cos(time * 0.3 + offset) > 0;
             meshRef.current.rotation.y = isMovingRight ? Math.PI : 0;
         }
@@ -117,9 +139,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
         <group>
             {/* Z=2 to stick to front */}
             <mesh ref={meshRef} onClick={handleClick} position={[initialX, initialY, 2]}>
-                {/* Scaled down plane for clean look - SMALLER SIZE as requested */}
                 <planeGeometry args={[0.8, 0.8]} />
-                <shaderMaterial args={[shaderArgs]} />
+                <shaderMaterial ref={materialRef} args={[shaderArgs]} />
             </mesh>
 
             {/* Signal Overlay */}
