@@ -11,6 +11,8 @@ import './App.css';
 function App() {
   const { t } = useTranslation();
   const coins = useGameStore((state) => state.user.coins);
+  const fishes = useGameStore((state) => state.fishes);
+  const addFish = useGameStore((state) => state.addFish);
   const lightMode = useGameStore((state) => state.environment.lightMode);
   const toggleLightMode = useGameStore((state) => state.toggleLightMode);
   const marketTrend = useGameStore((state) => state.marketTrend);
@@ -21,9 +23,18 @@ function App() {
 
   // Update market on load
   const updateMarket = useGameStore((state) => state.updateMarket);
-  if (useGameStore.getState().marketTrend === 1.0) {
-    updateMarket();
-  }
+
+  useEffect(() => {
+    // Market Logic
+    if (useGameStore.getState().marketTrend === 1.0) {
+      updateMarket();
+    }
+    // Auto-Spawn Fish if empty
+    if (fishes.length === 0) {
+      // console.log("No fish found. Spawning initial fish.");
+      addFish('Goldfish');
+    }
+  }, [fishes, addFish, updateMarket]); // Correct dependencies
 
   // Handle BGM
   useEffect(() => {
@@ -41,21 +52,44 @@ function App() {
           <h1>{t('welcome')}</h1>
           <p style={{ marginTop: 10 }}>Coins: {coins}</p>
           <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Market: x{marketTrend.toFixed(2)}</p>
+          {fishes.length === 0 && <p style={{ color: 'orange' }}>Searching for fish...</p>}
         </div>
       )}
 
-      {/* Visual Control Panel (Always visible or toggleable via specific gesture, here we keep it simple) */}
-      <div style={{
-        position: 'absolute',
-        bottom: '20px',
-        right: '20px',
-        display: 'flex',
-        gap: '10px',
-        zIndex: 20
-      }}>
+      {/* Visual Control Panel */}
+      <div className="control-panel">
+        {/* Buy Fish Button - INLINE STYLES ENSURED */}
+        {!isViewMode && (
+          <button
+            onClick={() => {
+              const cost = 50;
+              if (useGameStore.getState().spendCoins(cost)) {
+                useGameStore.getState().addFish('Goldfish');
+                soundManager.playSE('bubble');
+              } else {
+                alert(t('not_enough_coins') || "Not enough coins!");
+              }
+            }}
+            style={{
+              fontSize: '1.2rem',
+              padding: '8px 12px',
+              marginRight: '10px',
+              background: '#ff9800',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+              cursor: 'pointer'
+            }}
+          >
+            🛒 Buy (-50)
+          </button>
+        )}
+
         {/* Settings Button */}
         {!isViewMode && (
-          <button onClick={toggleSettings} style={{ fontSize: '1.5rem', padding: '8px 12px' }}>
+          <button onClick={toggleSettings} className="game-btn">
             ⚙️
           </button>
         )}
