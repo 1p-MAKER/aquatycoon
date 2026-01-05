@@ -1,5 +1,6 @@
 export interface FishGenes {
     color: string;
+    textureInfo: string; // Added texture path
     pattern: 'solid' | 'striped' | 'spotted';
     scaleType: 'normal' | 'metallic' | 'luminescent';
 }

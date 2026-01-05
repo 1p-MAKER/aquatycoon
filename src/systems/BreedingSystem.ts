@@ -39,7 +39,8 @@ export class BreedingSystem {
         return {
             color: '#' + childColor,
             pattern: childPattern,
-            scaleType: childScale
+            scaleType: childScale,
+            textureInfo: '/textures/goldfish.png' // Default texture
         };
     }
 }

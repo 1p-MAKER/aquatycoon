@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Fish, UserState, EnvironmentState } from '../types/schema';
-import { v4 as uuidv4 } from 'uuid';
 import { BreedingSystem } from '../systems/BreedingSystem';
 import { EconomySystem } from '../systems/EconomySystem';
 
@@ -30,11 +29,20 @@ interface GameStore {
     toggleLightMode: () => void;
 }
 
+const generateId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
 const INITIAL_FISH: Fish = {
     id: 'initial_fish_1',
     name: 'Beta',
     species: 'Goldfish',
-    genes: { color: '#ffbd33', pattern: 'solid', scaleType: 'normal' },
+    genes: {
+        color: '#ffbd33',
+        pattern: 'solid',
+        scaleType: 'normal',
+        textureInfo: '/textures/goldfish.png'
+    },
     status: { hunger: 100, growth: 10, happiness: 100, health: 100 },
     isFavorite: false,
     birthDate: Date.now(),
@@ -56,10 +64,15 @@ export const useGameStore = create<GameStore>()(
 
             addFish: (species: string) => set((state) => ({
                 fishes: [...state.fishes, {
-                    id: uuidv4(),
+                    id: generateId(),
                     name: `Fish ${state.fishes.length + 1}`,
                     species,
-                    genes: { color: '#ffffff', pattern: 'solid', scaleType: 'normal' }, // Default genes
+                    genes: {
+                        color: '#ffffff',
+                        pattern: 'solid',
+                        scaleType: 'normal',
+                        textureInfo: '/textures/goldfish.png'
+                    },
                     status: { hunger: 100, growth: 0, happiness: 100, health: 100 },
                     isFavorite: false,
                     birthDate: Date.now(),
@@ -105,16 +118,18 @@ export const useGameStore = create<GameStore>()(
 
                 if (!parent1 || !parent2) return {};
 
-                // In a real app, check for gender/cooldown/growth here.
-                // For MVP, we assume eligibility is checked at UI level.
-
                 const childGenes = BreedingSystem.calculateChildGenes(parent1, parent2);
+                // Ensure child genes has texture info if BreedingSystem doesn't provide it
+                const completeChildGenes = {
+                    ...childGenes,
+                    textureInfo: '/textures/goldfish.png'
+                };
 
                 const child: Fish = {
-                    id: uuidv4(),
+                    id: generateId(),
                     name: `Baby ${state.fishes.length + 1}`,
-                    species: parent1.species, // Inherit species from P1 for now
-                    genes: childGenes,
+                    species: parent1.species,
+                    genes: completeChildGenes,
                     status: { hunger: 100, growth: 0, happiness: 100, health: 100 },
                     isFavorite: false,
                     birthDate: Date.now(),
@@ -123,7 +138,6 @@ export const useGameStore = create<GameStore>()(
                 return { fishes: [...state.fishes, child] };
             }),
 
-            // Economy Actions
             updateMarket: () => set(() => ({
                 marketTrend: EconomySystem.generateMarketTrend()
             })),
