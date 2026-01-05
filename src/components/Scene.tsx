@@ -6,27 +6,37 @@ import { useGameStore } from '../store/gameStore';
 
 export const Scene = () => {
     const lightMode = useGameStore((state) => state.environment.lightMode);
-    const bgColor = lightMode === 'day' ? '#87CEEB' : '#111122';
 
     return (
         <>
             <Canvas
-                camera={{ position: [0, 2, 5], fov: 75 }}
-                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, zIndex: 0, background: bgColor, transition: 'background 1s ease' }}
+                camera={{ position: [0, 0, 5], fov: 60 }}
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: lightMode === 'day' ? '#4fc3f7' : '#0d47a1',
+                    zIndex: 0
+                }}
             >
-                <ambientLight intensity={lightMode === 'day' ? 0.7 : 0.2} />
-                <directionalLight position={[10, 10, 5]} intensity={lightMode === 'day' ? 1 : 0.2} />
+                {/* Debug Indicator - Red Sphere */}
+                <mesh position={[2, 3, 0]}>
+                    <sphereGeometry args={[0.1, 16, 16]} />
+                    <meshBasicMaterial color="red" />
+                </mesh>
+
+                <ambientLight intensity={lightMode === 'day' ? 0.8 : 0.2} />
+                <directionalLight position={[10, 10, 5]} intensity={lightMode === 'day' ? 1 : 0.5} />
+
                 {lightMode === 'night' && (
-                    <>
-                        <pointLight position={[-5, 2, 0]} color="#00ff00" intensity={2} distance={10} />
-                        <pointLight position={[5, 2, 0]} color="#ff00ff" intensity={2} distance={10} />
-                    </>
+                    <pointLight position={[0, 0, 2]} intensity={1.5} color="#ffd700" distance={10} />
                 )}
+
                 <Suspense fallback={null}>
                     <Aquarium />
                 </Suspense>
-                <gridHelper args={[20, 20, 0xff0000, 0x222222]} visible={false} />
-                <axesHelper args={[5]} visible={false} />
             </Canvas>
             <LoadingScreen />
         </>
