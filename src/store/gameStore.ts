@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Fish, UserState, EnvironmentState } from '../types/schema';
 import { v4 as uuidv4 } from 'uuid';
+import { BreedingSystem } from '../systems/BreedingSystem';
 
 interface GameStore {
     fishes: Fish[];
@@ -14,6 +15,7 @@ interface GameStore {
     toggleFavorite: (id: string) => void;
     setFishName: (id: string, name: string) => void;
     removeFish: (id: string) => void;
+    breedFish: (parent1Id: string, parent2Id: string) => void;
 
     // User Actions
     addCoins: (amount: number) => void;
@@ -90,6 +92,30 @@ export const useGameStore = create<GameStore>()(
             toggleLightMode: () => set((state) => ({
                 environment: { ...state.environment, lightMode: state.environment.lightMode === 'day' ? 'night' : 'day' }
             })),
+
+            breedFish: (parent1Id: string, parent2Id: string) => set((state) => {
+                const parent1 = state.fishes.find(f => f.id === parent1Id);
+                const parent2 = state.fishes.find(f => f.id === parent2Id);
+
+                if (!parent1 || !parent2) return {};
+
+                // In a real app, check for gender/cooldown/growth here.
+                // For MVP, we assume eligibility is checked at UI level.
+
+                const childGenes = BreedingSystem.calculateChildGenes(parent1, parent2);
+
+                const child: Fish = {
+                    id: uuidv4(),
+                    name: `Baby ${state.fishes.length + 1}`,
+                    species: parent1.species, // Inherit species from P1 for now
+                    genes: childGenes,
+                    status: { hunger: 100, growth: 0, happiness: 100, health: 100 },
+                    isFavorite: false,
+                    birthDate: Date.now(),
+                };
+
+                return { fishes: [...state.fishes, child] };
+            }),
         }),
         {
             name: 'aquatycoon-storage',

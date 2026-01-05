@@ -63,7 +63,29 @@ export const FishInfoModal = () => {
                     />
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
+                    <button onClick={() => {
+                        // Demo: Find another fish to breed with
+                        const adults = fishes.filter(f => f.id !== fish.id); // Simple check for now
+                        if (adults.length > 0) {
+                            const partner = adults[Math.floor(Math.random() * adults.length)];
+                            useGameStore.getState().breedFish(fish.id, partner.id);
+                            closeFishInfo();
+                        } else {
+                            alert("No partners available!");
+                        }
+                    }} style={{
+                        background: '#e91e63',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}>
+                        Breed ❤️
+                    </button>
+
                     <button onClick={closeFishInfo} style={{
                         background: '#646cff',
                         color: 'white',
