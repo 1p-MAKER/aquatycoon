@@ -40,6 +40,27 @@ function App() {
     }
   }, [lightMode, started]);
 
+  // MIGRATION: Force convert all existing fish to Neon Tetras
+  useEffect(() => {
+    const state = useGameStore.getState();
+    state.fishes.forEach(fish => {
+      // If it's a Goldfish or has old texture, convert it
+      if (fish.species === 'Goldfish' || !fish.genes.spriteConfig) {
+        state.updateFish(fish.id, {
+          species: 'NeonTetra',
+          name: fish.name.replace('Goldfish', 'Neon'),
+          genes: {
+            ...fish.genes,
+            color: '#00ffff',
+            textureInfo: '/textures/neon_tetra_sheet.png',
+            spriteConfig: { rows: 3, cols: 1, frames: 3 },
+            scaleType: 'luminescent'
+          }
+        });
+      }
+    });
+  }, []);
+
   const handleStart = () => {
     setStarted(true);
     soundManager.playSE('click');
