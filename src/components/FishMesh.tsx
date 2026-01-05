@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Mesh, Vector3 } from 'three';
-import { Html } from '@react-three/drei';
+import { Mesh, Vector3, DoubleSide } from 'three';
+import { Html, useTexture } from '@react-three/drei';
 import type { Fish } from '../types/schema';
 import { useUIStore } from '../store/uiStore';
 import { useSound } from '../hooks/useSound';
@@ -9,6 +9,35 @@ import { useSound } from '../hooks/useSound';
 interface FishMeshProps {
     fish: Fish;
 }
+
+// Simple Chroma Key Shader to remove black background
+const ChromaKeyShader = {
+    uniforms: {
+        texture1: { value: null },
+        color: { value: null }, // Fish tint color
+    },
+    vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+    // Discard if pixel is close to black
+    fragmentShader: `
+    uniform sampler2D texture1;
+    uniform vec3 color; 
+    varying vec2 vUv;
+    void main() {
+      vec4 texColor = texture2D(texture1, vUv);
+      // Simple black key: if R, G, and B are all very low, discard
+      float brightness = length(texColor.rgb);
+      if (brightness < 0.15) discard;
+      
+      gl_FragColor = texColor; 
+    }
+  `
+};
 
 export const FishMesh = ({ fish }: FishMeshProps) => {
     const meshRef = useRef<Mesh>(null);
@@ -18,8 +47,20 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     const [isSpinning, setIsSpinning] = useState(false);
     const [signal, setSignal] = useState<string | null>(null);
 
-    // Texture removed for debug
-    // const texture = useTexture('/textures/goldfish.png');
+    // Load Texture
+    const texture = useTexture('/textures/goldfish.png');
+
+    // Shader Material instance
+    const shaderArgs = useMemo(() => ({
+        uniforms: {
+            texture1: { value: texture },
+            color: { value: new Vector3(1, 0.5, 0) } // Default tint placeholder
+        },
+        vertexShader: ChromaKeyShader.vertexShader,
+        fragmentShader: ChromaKeyShader.fragmentShader,
+        transparent: true,
+        side: DoubleSide
+    }), [texture]);
 
     // Random initial position
     const positionRef = useRef(new Vector3(
@@ -61,9 +102,9 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     return (
         <group position={positionRef.current}>
             <mesh ref={meshRef} onClick={handleClick}>
-                {/* Debug: Pink Sphere to verify render */}
-                <sphereGeometry args={[0.5, 16, 16]} />
-                <meshStandardMaterial color="#ff00ff" roughness={0.5} />
+                {/* 2D Plane for Realistic Sprite */}
+                <planeGeometry args={[1.5, 1.5]} />
+                <shaderMaterial args={[shaderArgs]} />
             </mesh>
 
             {/* Signal Overlay */}

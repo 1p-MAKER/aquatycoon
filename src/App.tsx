@@ -48,7 +48,7 @@ function App() {
 
       {!isViewMode && (
         <div className="ui-overlay">
-          <h1 style={{ color: 'red' }}>DEBUG: VERSION 3</h1>
+          <h1>{t('welcome')}</h1>
           <p style={{ marginTop: 10 }}>Coins: {coins}</p>
           <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Market: x{marketTrend.toFixed(2)}</p>
           {fishes.length === 0 && <p style={{ color: 'orange' }}>Searching for fish...</p>}
