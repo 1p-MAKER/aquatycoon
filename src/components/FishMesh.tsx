@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Mesh, Vector3, DoubleSide } from 'three';
-import { Html, useTexture } from '@react-three/drei';
+import { Mesh, Vector3 } from 'three';
+import { Html } from '@react-three/drei';
 import type { Fish } from '../types/schema';
 import { useUIStore } from '../store/uiStore';
 import { useSound } from '../hooks/useSound';
@@ -18,8 +18,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     const [isSpinning, setIsSpinning] = useState(false);
     const [signal, setSignal] = useState<string | null>(null);
 
-    // Load Texture
-    const texture = useTexture('/textures/goldfish.png');
+    // Texture removed for debug
+    // const texture = useTexture('/textures/goldfish.png');
 
     // Random initial position
     const positionRef = useRef(new Vector3(
@@ -44,14 +44,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
                 meshRef.current.rotation.y = 0;
             }
         } else {
-            // Face direction of movement (Flip sprite)
-            // For a plane, we rotate 180 degrees to flip. 
-            // 0 is facing right (usually), PI is facing left.
-            const isMovingRight = Math.cos(time * 0.5 + parseFloat(fish.id)) > 0;
-            // Adjust rotation based on texture orientation. Assuming texture faces Left by default? 
-            // Usually fish textures face Left. If so, 0 is Left.
-            // Let's assume Left.
-            meshRef.current.rotation.y = isMovingRight ? Math.PI : 0;
+            // Face direction of movement (simplified)
+            meshRef.current.rotation.y = Math.sin(time * 0.5) > 0 ? 0 : Math.PI;
         }
     });
 
@@ -67,9 +61,9 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     return (
         <group position={positionRef.current}>
             <mesh ref={meshRef} onClick={handleClick}>
-                {/* 2D Plane for Realistic Sprite */}
-                <planeGeometry args={[1.5, 1.5]} />
-                <meshBasicMaterial map={texture} transparent={true} side={DoubleSide} />
+                {/* Debug: Pink Sphere to verify render */}
+                <sphereGeometry args={[0.5, 16, 16]} />
+                <meshStandardMaterial color="#ff00ff" roughness={0.5} />
             </mesh>
 
             {/* Signal Overlay */}
