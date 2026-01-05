@@ -1,15 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { Scene } from './components/Scene';
+import { useGameStore } from './store/gameStore';
 import './App.css';
 
 function App() {
   const { t } = useTranslation();
+  const coins = useGameStore((state) => state.user.coins);
 
   return (
     <div className="app-container">
       <Scene />
       <div className="ui-overlay">
         <h1>{t('welcome')}</h1>
+        <p style={{ marginTop: 10 }}>Coins: {coins}</p>
       </div>
     </div>
   );
