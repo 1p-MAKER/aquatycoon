@@ -12,7 +12,7 @@ export const Scene = () => {
         <>
             <Canvas
                 camera={{ position: [0, 2, 5], fov: 75 }}
-                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, zIndex: -1, background: bgColor, transition: 'background 1s ease' }}
+                style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, zIndex: 0, background: bgColor, transition: 'background 1s ease' }}
             >
                 <ambientLight intensity={lightMode === 'day' ? 0.7 : 0.2} />
                 <directionalLight position={[10, 10, 5]} intensity={lightMode === 'day' ? 1 : 0.2} />

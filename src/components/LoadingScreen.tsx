@@ -1,12 +1,22 @@
 import { useProgress } from '@react-three/drei';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 
 export const LoadingScreen = () => {
     const { active, progress } = useProgress();
     const { t } = useTranslation();
 
-    // If not active (loading done), opacity 0. else 1.
-    const opacity = active ? 1 : 0;
+    const [forcedHide, setForcedHide] = useState(false);
+
+    // Safeguard: Force hide after 5 seconds to prevent indefinite blocking
+    useEffect(() => {
+        const timer = setTimeout(() => setForcedHide(true), 5000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // If not active (loading done) or forced hidden, opacity 0.
+    const opacity = (active && !forcedHide && progress < 100) ? 1 : 0;
+
 
     return (
         <div style={{

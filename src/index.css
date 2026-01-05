@@ -19,15 +19,17 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden;
+  /* Prevent scrolling */
 }
 
 .ui-overlay {
   position: absolute;
   top: 20px;
   left: 20px;
-  pointer-events: none; /* Let clicks pass through to 3D scene */
+  pointer-events: none;
+  /* Let clicks pass through to 3D scene */
   z-index: 10;
   color: white;
-  text-shadow: 0 0 4px rgba(0,0,0,0.5);
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
