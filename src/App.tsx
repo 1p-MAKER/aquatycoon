@@ -105,7 +105,7 @@ function App() {
           style={{
             position: 'fixed',
             bottom: '20px',
-            right: '20px',
+            right: 'max(20px, env(safe-area-inset-right))',
             width: '56px',
             height: '56px',
             borderRadius: '50%',
@@ -136,7 +136,7 @@ function App() {
           transition: 'all 0.3s ease',
           position: 'absolute',
           bottom: '90px',
-          right: '20px',
+          right: 'max(20px, env(safe-area-inset-right))',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end',

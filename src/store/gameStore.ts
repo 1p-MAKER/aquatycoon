@@ -53,7 +53,7 @@ export const FISH_TYPES: Record<string, {
             color: '#00ffff', // Cyan glow
             pattern: 'striped',
             scaleType: 'luminescent',
-            textureInfo: '/textures/goldfish.png' // Placeholder: Use goldfish texture for now
+            textureInfo: '/textures/neon_tetra.png'
         }
     }
 };
