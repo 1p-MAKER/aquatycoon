@@ -10,11 +10,11 @@ interface FishMeshProps {
     fish: Fish;
 }
 
-// Shader to remove Black background
-const ChromaKeyShader = {
+// Standard Shader for Transparent Textures (Alpha Test)
+const TransparentShader = {
     uniforms: {
         texture1: { value: null },
-        uColor: { value: new Vector3(1, 1, 1) }, // Default white
+        uColor: { value: new Vector3(1, 1, 1) },
         uRepeat: { value: [1, 1] },
         uOffset: { value: [0, 0] }
     },
@@ -34,10 +34,8 @@ const ChromaKeyShader = {
     void main() {
       vec4 texColor = texture2D(texture1, vUv);
       
-      // Black Keying (Darkness check)
-      // Discard if pixel is very dark (black background)
-      float brightness = length(texColor.rgb);
-      if (brightness < 0.1) discard;
+      // Standard Alpha Test
+      if (texColor.a < 0.1) discard;
       
       gl_FragColor = texColor; 
     }
@@ -57,14 +55,12 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     texture.minFilter = 1003; // NearestFilter
     texture.magFilter = 1003; // NearestFilter
     texture.needsUpdate = true;
+    texture.center.set(0.5, 0.5);
+    texture.repeat.set(1, 1);
 
     // Parse gene color (hex to normalized rgb)
     const geneColor = useMemo(() => {
-        const hex = fish.genes.color || '#ffffff';
-        const r = parseInt(hex.slice(1, 3), 16) / 255;
-        const g = parseInt(hex.slice(3, 5), 16) / 255;
-        const b = parseInt(hex.slice(5, 7), 16) / 255;
-        return new Vector3(r, g, b);
+        return new Vector3(1, 1, 1);
     }, [fish.genes.color]);
 
     const spriteConfig = fish.genes.spriteConfig;
@@ -77,8 +73,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
             uRepeat: { value: spriteConfig ? [1 / spriteConfig.cols, 1 / spriteConfig.rows] : [1, 1] },
             uOffset: { value: [0, 0] }
         },
-        vertexShader: ChromaKeyShader.vertexShader,
-        fragmentShader: ChromaKeyShader.fragmentShader,
+        vertexShader: TransparentShader.vertexShader,
+        fragmentShader: TransparentShader.fragmentShader,
         transparent: true,
         side: DoubleSide
     }), [texture, geneColor, spriteConfig]);
@@ -120,9 +116,6 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
             }
         } else {
             // Flip based on direction
-            // If sprite faces LEFT:
-            // Moving Right (+X) -> V > 0 -> Need to face Right -> FLIP (PI)
-            // Moving Left (-X) -> V < 0 -> Need to face Left -> DEFAULT (0)
             const isMovingRight = Math.cos(time * 0.3 + offset) > 0;
             meshRef.current.rotation.y = isMovingRight ? Math.PI : 0;
         }
