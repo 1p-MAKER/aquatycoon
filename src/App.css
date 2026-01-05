@@ -22,11 +22,21 @@
 /* Control Panel */
 .control-panel {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   display: flex;
-  gap: 10px;
-  z-index: 20;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 10;
+  pointer-events: none;
+  /* Allow clicks to pass through around buttons */
+}
+
+.control-panel button {
+  pointer-events: auto;
+  /* Re-enable clicks for buttons */
 }
 
 /* Game Buttons */

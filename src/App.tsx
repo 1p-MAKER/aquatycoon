@@ -47,17 +47,41 @@ function App() {
       <SettingsModal />
 
       {!isViewMode && (
-        <div className="ui-overlay">
-          <h1>{t('welcome')}</h1>
-          <p style={{ marginTop: 10 }}>Coins: {coins}</p>
-          <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Market: x{marketTrend.toFixed(2)}</p>
-          {fishes.length === 0 && <p style={{ color: 'orange' }}>Searching for fish...</p>}
+        <div className="ui-overlay" style={{ paddingTop: 'env(safe-area-inset-top, 60px)' }}>
+          <h1 style={{
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+            marginBottom: '10px',
+            fontSize: '1.5rem'
+          }}>
+            {t('welcome')}
+          </h1>
+
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.3)',
+            padding: '10px 20px',
+            borderRadius: '20px',
+            backdropFilter: 'blur(5px)',
+            display: 'inline-block',
+            textAlign: 'left'
+          }}>
+            <p style={{ margin: '4px 0', fontWeight: 'bold' }}>
+              💰 コイン: {coins}
+            </p>
+            <p style={{ margin: '4px 0', fontSize: '0.9rem', opacity: 0.9 }}>
+              📈 市場価値: x{marketTrend.toFixed(2)}
+            </p>
+            {fishes.length === 0 && (
+              <p style={{ color: '#ffbd33', marginTop: '5px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                ⚠️ 魚がいません！<br />(コインがない場合は自動補給されます)
+              </p>
+            )}
+          </div>
         </div>
       )}
 
       {/* Visual Control Panel */}
-      <div className="control-panel">
-        {/* Buy Fish Button - INLINE STYLES ENSURED */}
+      <div className="control-panel" style={{ paddingBottom: 'env(safe-area-inset-bottom, 20px)' }}>
+        {/* Buy Fish Button */}
         {!isViewMode && (
           <button
             onClick={() => {
@@ -66,34 +90,54 @@ function App() {
                 useGameStore.getState().addFish('Goldfish');
                 soundManager.playSE('bubble');
               } else {
-                alert(t('not_enough_coins') || "Not enough coins!");
+                alert(t('not_enough_coins') || "コインが足りません！");
               }
             }}
             style={{
-              fontSize: '1.2rem',
-              padding: '8px 12px',
-              marginRight: '10px',
-              background: '#ff9800',
+              fontSize: '1.1rem',
+              padding: '10px 20px',
+              marginRight: '12px',
+              background: 'linear-gradient(135deg, #ff9800, #f57c00)',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '24px',
               fontWeight: 'bold',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-              cursor: 'pointer'
+              boxShadow: '0 4px 12px rgba(245, 124, 0, 0.4)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            🛒 Buy (-50)
+            <span>🛒</span> 買う (-50)
           </button>
         )}
 
         {/* Settings Button */}
         {!isViewMode && (
-          <button onClick={toggleSettings} className="game-btn">
+          <button onClick={toggleSettings} className="game-btn" style={{
+            background: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
             ⚙️
           </button>
         )}
 
-        <button onClick={toggleLightMode} style={{ fontSize: '1.5rem', padding: '8px 12px' }}>
+        <button onClick={toggleLightMode} style={{
+          fontSize: '1.2rem',
+          padding: '0',
+          background: 'rgba(255, 255, 255, 0.2)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '50%',
+          width: '48px',
+          height: '48px',
+          border: '1px solid rgba(255,255,255,0.3)',
+          marginLeft: '8px'
+        }}>
           {lightMode === 'day' ? '🌙' : '☀️'}
         </button>
       </div>
