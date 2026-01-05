@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import { Scene } from './components/Scene';
 import { useGameStore } from './store/gameStore';
 import { FishInfoModal } from './components/ui/FishInfoModal';
-import './App.css';
-
 import { useUIStore } from './store/uiStore';
+import { soundManager } from './managers/SoundManager';
+import './App.css';
 
 function App() {
   const { t } = useTranslation();
@@ -20,6 +21,11 @@ function App() {
   if (useGameStore.getState().marketTrend === 1.0) {
     updateMarket();
   }
+
+  // Handle BGM
+  useEffect(() => {
+    soundManager.playBGM(lightMode);
+  }, [lightMode]);
 
   return (
     <div className="app-container">
