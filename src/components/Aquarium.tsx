@@ -1,21 +1,27 @@
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Mesh } from 'three';
+import { useGameStore } from '../store/gameStore';
+import { FishMesh } from './FishMesh';
 
 export const Aquarium = () => {
-    const meshRef = useRef<Mesh>(null);
-
-    useFrame((_, delta) => {
-        if (meshRef.current) {
-            meshRef.current.rotation.x += delta * 0.2;
-            meshRef.current.rotation.y += delta * 0.2;
-        }
-    });
+    const fishes = useGameStore((state) => state.fishes);
 
     return (
-        <mesh ref={meshRef}>
-            <boxGeometry args={[2, 2, 2]} />
-            <meshStandardMaterial color="#44aa88" />
-        </mesh>
+        <group>
+            {/* Water Volume (Visual only) */}
+            <mesh position={[0, 0, 0]}>
+                <boxGeometry args={[12, 8, 8]} />
+                <meshStandardMaterial
+                    color="#44aa88"
+                    transparent
+                    opacity={0.1}
+                    roughness={0.1}
+                    metalness={0.1}
+                />
+            </mesh>
+
+            {/* Render Fishes */}
+            {fishes.map((fish) => (
+                <FishMesh key={fish.id} fish={fish} />
+            ))}
+        </group>
     );
 };

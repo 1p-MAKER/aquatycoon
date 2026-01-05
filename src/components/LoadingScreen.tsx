@@ -2,8 +2,11 @@ import { useProgress } from '@react-three/drei';
 import { useTranslation } from 'react-i18next';
 
 export const LoadingScreen = () => {
-    const { progress } = useProgress();
+    const { active, progress } = useProgress();
     const { t } = useTranslation();
+
+    // If not active (loading done), opacity 0. else 1.
+    const opacity = active ? 1 : 0;
 
     return (
         <div style={{
@@ -20,6 +23,7 @@ export const LoadingScreen = () => {
             zIndex: 100,
             transition: 'opacity 0.5s ease-out',
             pointerEvents: 'none',
+            opacity: opacity, // Controllable opacity
         }}>
             <h2 style={{ color: 'white', marginBottom: '1rem' }}>{t('loading')}</h2>
             <div style={{ width: '200px', height: '4px', background: '#333', borderRadius: '2px' }}>
