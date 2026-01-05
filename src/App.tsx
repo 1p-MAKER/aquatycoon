@@ -140,6 +140,28 @@ function App() {
         }}>
           {lightMode === 'day' ? '🌙' : '☀️'}
         </button>
+
+        {/* Emergency Spawn Button (Hidden feature for stability) */}
+        <button
+          onClick={() => {
+            useGameStore.getState().addFish('Goldfish');
+            soundManager.playSE('bubble');
+          }}
+          style={{
+            fontSize: '1.2rem',
+            padding: '0',
+            background: 'rgba(0, 255, 100, 0.3)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            border: '1px solid rgba(255,255,255,0.3)',
+            marginLeft: '8px'
+          }}
+          title="Force Spawn Fish"
+        >
+          🐟
+        </button>
       </div>
     </div>
   );

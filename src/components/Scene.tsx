@@ -21,11 +21,7 @@ export const Scene = () => {
                     zIndex: 0
                 }}
             >
-                {/* Debug Indicator - Red Sphere */}
-                <mesh position={[2, 3, 0]}>
-                    <sphereGeometry args={[0.1, 16, 16]} />
-                    <meshBasicMaterial color="red" />
-                </mesh>
+
 
                 <ambientLight intensity={lightMode === 'day' ? 0.8 : 0.2} />
                 <directionalLight position={[10, 10, 5]} intensity={lightMode === 'day' ? 1 : 0.5} />
