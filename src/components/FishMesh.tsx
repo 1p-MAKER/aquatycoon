@@ -10,13 +10,13 @@ interface FishMeshProps {
     fish: Fish;
 }
 
-// Shader to remove black background and apply tint
+// Shader to remove Black background
 const ChromaKeyShader = {
     uniforms: {
         texture1: { value: null },
-        uColor: { value: new Vector3(1, 1, 1) }, // Default white (no tint)
-        uRepeat: { value: [1, 1] }, // Default full texture
-        uOffset: { value: [0, 0] }  // Default no offset
+        uColor: { value: new Vector3(1, 1, 1) }, // Default white
+        uRepeat: { value: [1, 1] },
+        uOffset: { value: [0, 0] }
     },
     vertexShader: `
     varying vec2 vUv;
@@ -34,12 +34,11 @@ const ChromaKeyShader = {
     void main() {
       vec4 texColor = texture2D(texture1, vUv);
       
-      // Use texture alpha
-      if (texColor.a < 0.1) discard;
+      // Black Keying (Darkness check)
+      // Discard if pixel is very dark (black background)
+      float brightness = length(texColor.rgb);
+      if (brightness < 0.1) discard;
       
-      // Use ORIGINAL texture colors. 
-      // Only apply subtle tint if needed, or ignore uColor for specific species logic.
-      // For now, let's trust the texture's colors.
       gl_FragColor = texColor; 
     }
   `
@@ -142,7 +141,7 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
         <group>
             {/* Z=2 to stick to front */}
             <mesh ref={meshRef} onClick={handleClick} position={[initialX, initialY, 2]}>
-                <planeGeometry args={[0.8, 0.8]} />
+                <planeGeometry args={[1.2, 0.6]} />
                 <shaderMaterial ref={materialRef} args={[shaderArgs]} />
             </mesh>
 
