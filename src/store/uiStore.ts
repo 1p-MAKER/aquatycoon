@@ -1,21 +1,33 @@
 import { create } from 'zustand';
 
 interface UIStore {
+    // Fish Info Modal
     selectedFishId: string | null;
     isModalOpen: boolean;
-    isViewMode: boolean;
-
     openFishInfo: (fishId: string) => void;
     closeFishInfo: () => void;
+
+    // View Mode
+    isViewMode: boolean;
     toggleViewMode: () => void;
+
+    // Settings Modal
+    isSettingsOpen: boolean;
+    toggleSettings: () => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
+    // Fish Info Modal
     selectedFishId: null,
     isModalOpen: false,
-    isViewMode: false,
-
     openFishInfo: (fishId) => set({ selectedFishId: fishId, isModalOpen: true }),
     closeFishInfo: () => set({ selectedFishId: null, isModalOpen: false }),
+
+    // View Mode
+    isViewMode: false,
     toggleViewMode: () => set((state) => ({ isViewMode: !state.isViewMode })),
+
+    // Settings Modal
+    isSettingsOpen: false,
+    toggleSettings: () => set((state) => ({ isSettingsOpen: !state.isSettingsOpen })),
 }));

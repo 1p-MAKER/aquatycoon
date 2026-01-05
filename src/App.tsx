@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Scene } from './components/Scene';
 import { useGameStore } from './store/gameStore';
 import { FishInfoModal } from './components/ui/FishInfoModal';
+import { SettingsModal } from './components/ui/SettingsModal';
 import { useUIStore } from './store/uiStore';
 import { soundManager } from './managers/SoundManager';
 import './App.css';
@@ -15,6 +16,7 @@ function App() {
 
   const isViewMode = useUIStore((state) => state.isViewMode);
   const toggleViewMode = useUIStore((state) => state.toggleViewMode);
+  const toggleSettings = useUIStore((state) => state.toggleSettings);
 
   // Update market on load
   const updateMarket = useGameStore((state) => state.updateMarket);
@@ -31,6 +33,7 @@ function App() {
     <div className="app-container">
       <Scene />
       <FishInfoModal />
+      <SettingsModal />
 
       {!isViewMode && (
         <div className="ui-overlay">
@@ -49,6 +52,13 @@ function App() {
         gap: '10px',
         zIndex: 20
       }}>
+        {/* Settings Button */}
+        {!isViewMode && (
+          <button onClick={toggleSettings} style={{ fontSize: '1.5rem', padding: '8px 12px' }}>
+            ⚙️
+          </button>
+        )}
+
         <button onClick={toggleLightMode} style={{ fontSize: '1.5rem', padding: '8px 12px' }}>
           {lightMode === 'day' ? '🌙' : '☀️'}
         </button>
