@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Aquatycoon</string>
+    <string name="title_activity_main">Aquatycoon</string>
+    <string name="package_name">com.aquarium.aquatycoon</string>
+    <string name="custom_url_scheme">com.aquarium.aquatycoon</string>
+</resources>
