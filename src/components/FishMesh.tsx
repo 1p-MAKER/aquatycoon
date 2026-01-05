@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Mesh, DoubleSide } from 'three';
+import { Mesh, Vector3, DoubleSide } from 'three';
 import { Html, useTexture } from '@react-three/drei';
 import type { Fish } from '../types/schema';
 import { useUIStore } from '../store/uiStore';
@@ -10,10 +10,11 @@ interface FishMeshProps {
     fish: Fish;
 }
 
-// Shader to remove black background
+// Shader to remove black background and apply tint
 const ChromaKeyShader = {
     uniforms: {
         texture1: { value: null },
+        uColor: { value: new Vector3(1, 1, 1) }, // Default white (no tint)
     },
     vertexShader: `
     varying vec2 vUv;
@@ -24,13 +25,18 @@ const ChromaKeyShader = {
   `,
     fragmentShader: `
     uniform sampler2D texture1;
+    uniform vec3 uColor;
     varying vec2 vUv;
     void main() {
       vec4 texColor = texture2D(texture1, vUv);
       float brightness = length(texColor.rgb);
       // If pixel is black (low brightness), discard it
       if (brightness < 0.2) discard;
-      gl_FragColor = texColor; 
+      
+      // Apply tint (multiply texture color by gene color)
+      // Mix original with tinted based on how strong we want the effect. 
+      // For now, simple multiplication.
+      gl_FragColor = vec4(texColor.rgb * uColor, texColor.a); 
     }
   `
 };
@@ -45,16 +51,26 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
 
     const texture = useTexture(fish.genes.textureInfo || '/textures/goldfish.png');
 
+    // Parse gene color (hex to normalized rgb)
+    const geneColor = useMemo(() => {
+        const hex = fish.genes.color || '#ffffff';
+        const r = parseInt(hex.slice(1, 3), 16) / 255;
+        const g = parseInt(hex.slice(3, 5), 16) / 255;
+        const b = parseInt(hex.slice(5, 7), 16) / 255;
+        return new Vector3(r, g, b);
+    }, [fish.genes.color]);
+
     // Create shader material
     const shaderArgs = useMemo(() => ({
         uniforms: {
             texture1: { value: texture },
+            uColor: { value: geneColor }
         },
         vertexShader: ChromaKeyShader.vertexShader,
         fragmentShader: ChromaKeyShader.fragmentShader,
         transparent: true,
         side: DoubleSide
-    }), [texture]);
+    }), [texture, geneColor]);
 
     // Deterministic random position based on ID
     // Extract numbers from ID to use as seed, fallback to random
@@ -70,6 +86,7 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
         const offset = seed * 10; // Unique offset
 
         // Organic floating movement
+        // Wider boundaries for Landscape mode (X: -6 to 6, Y: -3 to 3)
         meshRef.current.position.y = initialY + Math.sin(time + offset) * 0.3;
         meshRef.current.position.x = initialX + Math.sin(time * 0.3 + offset) * 0.6;
 
@@ -100,8 +117,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
         <group>
             {/* Z=2 to stick to front */}
             <mesh ref={meshRef} onClick={handleClick} position={[initialX, initialY, 2]}>
-                {/* Scaled down plane for clean look */}
-                <planeGeometry args={[1.2, 1.2]} />
+                {/* Scaled down plane for clean look - SMALLER SIZE as requested */}
+                <planeGeometry args={[0.8, 0.8]} />
                 <shaderMaterial args={[shaderArgs]} />
             </mesh>
 

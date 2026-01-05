@@ -14,6 +14,10 @@ interface UIStore {
     // Settings Modal
     isSettingsOpen: boolean;
     toggleSettings: () => void;
+
+    // Shop Modal
+    isShopOpen: boolean;
+    toggleShop: () => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -30,4 +34,8 @@ export const useUIStore = create<UIStore>((set) => ({
     // Settings Modal
     isSettingsOpen: false,
     toggleSettings: () => set((state) => ({ isSettingsOpen: !state.isSettingsOpen })),
+
+    // Shop Modal
+    isShopOpen: false,
+    toggleShop: () => set((state) => ({ isShopOpen: !state.isShopOpen })),
 }));

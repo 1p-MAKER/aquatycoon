@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Fish, UserState, EnvironmentState } from '../types/schema';
+import type { Fish, FishGenes, UserState, EnvironmentState } from '../types/schema';
 import { BreedingSystem } from '../systems/BreedingSystem';
 import { EconomySystem } from '../systems/EconomySystem';
 
@@ -29,20 +29,45 @@ interface GameStore {
     toggleLightMode: () => void;
 }
 
+
+// Fish Configuration
+export const FISH_TYPES: Record<string, {
+    name: string;
+    cost: number;
+    genes: FishGenes;
+}> = {
+    'Goldfish': {
+        name: 'Goldfish',
+        cost: 50,
+        genes: {
+            color: '#ffbd33',
+            pattern: 'solid',
+            scaleType: 'normal',
+            textureInfo: '/textures/goldfish.png'
+        }
+    },
+    'NeonTetra': {
+        name: 'Neon Tetra',
+        cost: 80,
+        genes: {
+            color: '#00ffff', // Cyan glow
+            pattern: 'striped',
+            scaleType: 'luminescent',
+            textureInfo: '/textures/goldfish.png' // Placeholder: Use goldfish texture for now
+        }
+    }
+};
+
+
 const generateId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
 const INITIAL_FISH: Fish = {
     id: 'initial_fish_1',
-    name: 'Beta',
-    species: 'Goldfish',
-    genes: {
-        color: '#ffbd33',
-        pattern: 'solid',
-        scaleType: 'normal',
-        textureInfo: '/textures/goldfish.png'
-    },
+    name: 'Neo',
+    species: 'NeonTetra',
+    genes: FISH_TYPES['NeonTetra'].genes,
     status: { hunger: 100, growth: 10, happiness: 100, health: 100 },
     isFavorite: false,
     birthDate: Date.now(),
@@ -53,7 +78,7 @@ export const useGameStore = create<GameStore>()(
         (set, get) => ({
             fishes: [INITIAL_FISH],
             user: {
-                coins: 100,
+                coins: 200, // Increased starting coins for Neon Tetra
                 inventory: [],
             },
             environment: {
@@ -62,22 +87,22 @@ export const useGameStore = create<GameStore>()(
             },
             marketTrend: 1.0,
 
-            addFish: (species: string) => set((state) => ({
-                fishes: [...state.fishes, {
-                    id: generateId(),
-                    name: `Fish ${state.fishes.length + 1}`,
-                    species,
-                    genes: {
-                        color: '#ffffff',
-                        pattern: 'solid',
-                        scaleType: 'normal',
-                        textureInfo: '/textures/goldfish.png'
-                    },
-                    status: { hunger: 100, growth: 0, happiness: 100, health: 100 },
-                    isFavorite: false,
-                    birthDate: Date.now(),
-                }]
-            })),
+            addFish: (speciesKey: string) => set((state) => {
+                const fishConfig = FISH_TYPES[speciesKey];
+                if (!fishConfig) return {};
+
+                return {
+                    fishes: [...state.fishes, {
+                        id: generateId(),
+                        name: `${fishConfig.name} ${state.fishes.length + 1}`,
+                        species: speciesKey,
+                        genes: fishConfig.genes,
+                        status: { hunger: 100, growth: 0, happiness: 100, health: 100 },
+                        isFavorite: false,
+                        birthDate: Date.now(),
+                    }]
+                };
+            }),
 
             updateFish: (id, updates) => set((state) => ({
                 fishes: state.fishes.map((f) => f.id === id ? { ...f, ...updates } : f)
@@ -119,10 +144,10 @@ export const useGameStore = create<GameStore>()(
                 if (!parent1 || !parent2) return {};
 
                 const childGenes = BreedingSystem.calculateChildGenes(parent1, parent2);
-                // Ensure child genes has texture info if BreedingSystem doesn't provide it
                 const completeChildGenes = {
                     ...childGenes,
-                    textureInfo: '/textures/goldfish.png'
+                    // Inherit texture from Mom (Parent 1) for now
+                    textureInfo: parent1.genes.textureInfo
                 };
 
                 const child: Fish = {

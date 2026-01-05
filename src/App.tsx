@@ -1,24 +1,28 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Scene } from './components/Scene';
 import { useGameStore } from './store/gameStore';
 import { FishInfoModal } from './components/ui/FishInfoModal';
 import { SettingsModal } from './components/ui/SettingsModal';
+import { ShopModal } from './components/ui/ShopModal';
 import { useUIStore } from './store/uiStore';
 import { soundManager } from './managers/SoundManager';
 import './App.css';
 
 function App() {
   const { t } = useTranslation();
-  const coins = useGameStore((state) => state.user.coins);
+  const [started, setStarted] = useState(false); // Title Screen State
+
   const fishes = useGameStore((state) => state.fishes);
   const addFish = useGameStore((state) => state.addFish);
   const lightMode = useGameStore((state) => state.environment.lightMode);
   const toggleLightMode = useGameStore((state) => state.toggleLightMode);
   const marketTrend = useGameStore((state) => state.marketTrend);
+  const coins = useGameStore((state) => state.user.coins); // Added missing coins
 
   const isViewMode = useUIStore((state) => state.isViewMode);
   const toggleSettings = useUIStore((state) => state.toggleSettings);
+  const toggleShop = useUIStore((state) => state.toggleShop);
 
   // Update market on load
   const updateMarket = useGameStore((state) => state.updateMarket);
@@ -30,21 +34,74 @@ function App() {
     }
     // Auto-Spawn Fish if empty
     if (fishes.length === 0) {
-      // console.log("No fish found. Spawning initial fish.");
-      addFish('Goldfish');
+      addFish('NeonTetra');
     }
-  }, [fishes, addFish, updateMarket]); // Correct dependencies
+  }, [fishes, addFish, updateMarket]);
 
   // Handle BGM
   useEffect(() => {
+    if (started) {
+      soundManager.playBGM(lightMode);
+    }
+  }, [lightMode, started]);
+
+  const handleStart = () => {
+    setStarted(true);
+    soundManager.playSE('click');
     soundManager.playBGM(lightMode);
-  }, [lightMode]);
+  };
+
+  if (!started) {
+    return (
+      <div className="title-screen" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #001f3f, #0074D9)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        zIndex: 9999
+      }}>
+        <h1 style={{
+          fontSize: '4rem',
+          marginBottom: '40px',
+          textShadow: '0 4px 10px rgba(0,0,0,0.5)',
+          fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif'
+        }}>
+          Aqua Tycoon
+        </h1>
+        <button
+          onClick={handleStart}
+          style={{
+            fontSize: '1.5rem',
+            padding: '16px 48px',
+            background: 'linear-gradient(to bottom, #2ECC40, #0074D9)',
+            border: 'none',
+            borderRadius: '30px',
+            color: 'white',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
+            transition: 'transform 0.1s'
+          }}
+        >
+          START
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
       <Scene />
       <FishInfoModal />
       <SettingsModal />
+      <ShopModal />
 
       {!isViewMode && (
         <div className="ui-overlay" style={{ paddingTop: 'env(safe-area-inset-top, 60px)' }}>
@@ -81,18 +138,10 @@ function App() {
 
       {/* Visual Control Panel */}
       <div className="control-panel" style={{ paddingBottom: 'env(safe-area-inset-bottom, 20px)' }}>
-        {/* Buy Fish Button */}
+        {/* Shop Button */}
         {!isViewMode && (
           <button
-            onClick={() => {
-              const cost = 50;
-              if (useGameStore.getState().spendCoins(cost)) {
-                useGameStore.getState().addFish('Goldfish');
-                soundManager.playSE('bubble');
-              } else {
-                alert(t('not_enough_coins') || "コインが足りません！");
-              }
-            }}
+            onClick={toggleShop}
             style={{
               fontSize: '1.1rem',
               padding: '10px 20px',
@@ -109,7 +158,7 @@ function App() {
               gap: '8px'
             }}
           >
-            <span>🛒</span> 買う (-50)
+            <span>🛒</span> ショップ
           </button>
         )}
 
@@ -141,7 +190,7 @@ function App() {
           {lightMode === 'day' ? '🌙' : '☀️'}
         </button>
 
-        {/* Emergency Spawn Button (Hidden feature for stability) */}
+        {/* Emergency Spawn Button */}
         <button
           onClick={() => {
             useGameStore.getState().addFish('Goldfish');
