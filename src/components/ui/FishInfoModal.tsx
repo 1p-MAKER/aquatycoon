@@ -33,10 +33,10 @@ export const FishInfoModal = () => {
                 boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
                 color: 'white'
             }} onClick={e => e.stopPropagation()}>
-                <h2 style={{ marginTop: 0 }}>Fish Details</h2>
+                <h2 style={{ marginTop: 0 }}>おさかなの詳細</h2>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '4px' }}>Name</label>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '4px' }}>名前</label>
                     <input
                         type="text"
                         value={fish.name}
@@ -55,15 +55,15 @@ export const FishInfoModal = () => {
 
                 <div style={{ marginBottom: '16px', background: '#222', padding: '8px', borderRadius: '8px' }}>
                     <p style={{ margin: 0, fontSize: '0.9rem', color: '#ffd700' }}>
-                        Value: {useGameStore.getState().marketTrend ?
+                        価値: {useGameStore.getState().marketTrend ?
                             Math.floor((100 + fish.status.growth * 2 + (fish.genes.scaleType === 'metallic' ? 500 : fish.genes.scaleType === 'luminescent' ? 1000 : 0)) * useGameStore.getState().marketTrend)
                             : '...'}
-                        Only (Market: x{useGameStore.getState().marketTrend?.toFixed(2)})
+                        コイン (相場: x{useGameStore.getState().marketTrend?.toFixed(2)})
                     </p>
                 </div>
 
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <label style={{ fontSize: '1rem' }}>Favorite (Lock)</label>
+                    <label style={{ fontSize: '1rem' }}>お気に入り (ロック)</label>
                     <input
                         type="checkbox"
                         checked={fish.isFavorite}
@@ -81,7 +81,7 @@ export const FishInfoModal = () => {
                             useGameStore.getState().breedFish(fish.id, partner.id);
                             closeFishInfo();
                         } else {
-                            alert("No partners available!");
+                            alert("パートナーがいません！");
                         }
                     }} style={{
                         background: '#e91e63',
@@ -92,7 +92,7 @@ export const FishInfoModal = () => {
                         cursor: 'pointer',
                         fontWeight: 'bold'
                     }}>
-                        Breed ❤️
+                        ふやす ❤️
                     </button>
 
                     <button onClick={() => {
@@ -107,7 +107,7 @@ export const FishInfoModal = () => {
                         cursor: 'pointer',
                         fontWeight: 'bold'
                     }}>
-                        Sell 💰
+                        うる 💰
                     </button>
 
                     <button onClick={closeFishInfo} style={{
@@ -119,7 +119,7 @@ export const FishInfoModal = () => {
                         cursor: 'pointer',
                         fontWeight: 'bold'
                     }}>
-                        Close
+                        とじる
                     </button>
                 </div>
             </div>

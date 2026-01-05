@@ -18,7 +18,6 @@ function App() {
   const marketTrend = useGameStore((state) => state.marketTrend);
 
   const isViewMode = useUIStore((state) => state.isViewMode);
-  const toggleViewMode = useUIStore((state) => state.toggleViewMode);
   const toggleSettings = useUIStore((state) => state.toggleSettings);
 
   // Update market on load
@@ -96,9 +95,6 @@ function App() {
 
         <button onClick={toggleLightMode} style={{ fontSize: '1.5rem', padding: '8px 12px' }}>
           {lightMode === 'day' ? '🌙' : '☀️'}
-        </button>
-        <button onClick={toggleViewMode} style={{ fontSize: '1.5rem', padding: '8px 12px' }}>
-          {isViewMode ? '👁️' : '🚫'}
         </button>
       </div>
     </div>
