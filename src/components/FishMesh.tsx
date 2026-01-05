@@ -64,7 +64,8 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
 
     return (
         <group>
-            <mesh ref={meshRef} onClick={handleClick} position={[initialX, initialY, 0]}>
+            {/* Z=2 to ensure it is in front of everything */}
+            <mesh ref={meshRef} onClick={handleClick} position={[initialX, initialY, 2]}>
                 {/* Phase 1: PlaneGeometry for 2D Sprite */}
                 <planeGeometry args={[1.5, 1.5]} />
                 <meshBasicMaterial
@@ -72,6 +73,13 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
                     transparent={true}
                     side={DoubleSide}
                 />
+
+                {/* EMERGENCY VISUALIZATION: Wireframe Box */}
+                {/* This will show up even if the texture fails to load */}
+                <mesh position={[0, 0, 0.1]}>
+                    <boxGeometry args={[1, 0.6, 0.1]} />
+                    <meshBasicMaterial color="red" wireframe />
+                </mesh>
             </mesh>
 
             {/* Signal Overlay */}

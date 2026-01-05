@@ -6,17 +6,7 @@ export const Aquarium = () => {
 
     return (
         <group>
-            {/* Water Volume (Visual only) */}
-            <mesh position={[0, 0, 0]}>
-                <boxGeometry args={[12, 8, 8]} />
-                <meshStandardMaterial
-                    color="#44aa88"
-                    transparent
-                    opacity={0.1}
-                    roughness={0.1}
-                    metalness={0.1}
-                />
-            </mesh>
+
 
             {/* Render Fishes */}
             {fishes.map((fish) => (
