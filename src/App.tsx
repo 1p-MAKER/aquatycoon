@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Scene } from './components/Scene';
 import { useGameStore } from './store/gameStore';
@@ -10,7 +9,6 @@ import { soundManager } from './managers/SoundManager';
 import './App.css';
 
 function App() {
-  const { t } = useTranslation();
   const [started, setStarted] = useState(false); // Title Screen State
 
   const fishes = useGameStore((state) => state.fishes);
@@ -105,14 +103,6 @@ function App() {
 
       {!isViewMode && (
         <div className="ui-overlay" style={{ paddingTop: 'env(safe-area-inset-top, 60px)' }}>
-          <h1 style={{
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-            marginBottom: '10px',
-            fontSize: '1.5rem'
-          }}>
-            {t('welcome')}
-          </h1>
-
           <div style={{
             background: 'rgba(0, 0, 0, 0.3)',
             padding: '10px 20px',
