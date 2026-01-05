@@ -53,6 +53,15 @@ export const FishInfoModal = () => {
                     />
                 </div>
 
+                <div style={{ marginBottom: '16px', background: '#222', padding: '8px', borderRadius: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#ffd700' }}>
+                        Value: {useGameStore.getState().marketTrend ?
+                            Math.floor((100 + fish.status.growth * 2 + (fish.genes.scaleType === 'metallic' ? 500 : fish.genes.scaleType === 'luminescent' ? 1000 : 0)) * useGameStore.getState().marketTrend)
+                            : '...'}
+                        Only (Market: x{useGameStore.getState().marketTrend?.toFixed(2)})
+                    </p>
+                </div>
+
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <label style={{ fontSize: '1rem' }}>Favorite (Lock)</label>
                     <input
@@ -84,6 +93,21 @@ export const FishInfoModal = () => {
                         fontWeight: 'bold'
                     }}>
                         Breed ❤️
+                    </button>
+
+                    <button onClick={() => {
+                        useGameStore.getState().sellFish(fish.id);
+                        closeFishInfo();
+                    }} style={{
+                        background: '#4caf50',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}>
+                        Sell 💰
                     </button>
 
                     <button onClick={closeFishInfo} style={{

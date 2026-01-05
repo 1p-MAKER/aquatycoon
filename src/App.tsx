@@ -15,6 +15,12 @@ function App() {
   const isViewMode = useUIStore((state) => state.isViewMode);
   const toggleViewMode = useUIStore((state) => state.toggleViewMode);
 
+  // Update market on load
+  const updateMarket = useGameStore((state) => state.updateMarket);
+  if (useGameStore.getState().marketTrend === 1.0) {
+    updateMarket();
+  }
+
   return (
     <div className="app-container">
       <Scene />
@@ -24,6 +30,7 @@ function App() {
         <div className="ui-overlay">
           <h1>{t('welcome')}</h1>
           <p style={{ marginTop: 10 }}>Coins: {coins}</p>
+          <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Market: x{useGameStore((state) => state.marketTrend).toFixed(2)}</p>
         </div>
       )}
 

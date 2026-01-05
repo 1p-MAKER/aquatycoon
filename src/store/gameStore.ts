@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Fish, UserState, EnvironmentState } from '../types/schema';
 import { v4 as uuidv4 } from 'uuid';
 import { BreedingSystem } from '../systems/BreedingSystem';
+import { EconomySystem } from '../systems/EconomySystem';
 
 interface GameStore {
     fishes: Fish[];
@@ -16,6 +17,10 @@ interface GameStore {
     setFishName: (id: string, name: string) => void;
     removeFish: (id: string) => void;
     breedFish: (parent1Id: string, parent2Id: string) => void;
+
+    marketTrend: number;
+    updateMarket: () => void;
+    sellFish: (id: string) => void;
 
     // User Actions
     addCoins: (amount: number) => void;
@@ -47,6 +52,7 @@ export const useGameStore = create<GameStore>()(
                 decorations: [],
                 lightMode: 'day',
             },
+            marketTrend: 1.0,
 
             addFish: (species: string) => set((state) => ({
                 fishes: [...state.fishes, {
@@ -115,6 +121,23 @@ export const useGameStore = create<GameStore>()(
                 };
 
                 return { fishes: [...state.fishes, child] };
+            }),
+
+            // Economy Actions
+            updateMarket: () => set(() => ({
+                marketTrend: EconomySystem.generateMarketTrend()
+            })),
+
+            sellFish: (id: string) => set((state) => {
+                const fish = state.fishes.find(f => f.id === id);
+                if (!fish) return {};
+
+                const value = EconomySystem.calculateFishValue(fish, state.marketTrend);
+
+                return {
+                    fishes: state.fishes.filter(f => f.id !== id),
+                    user: { ...state.user, coins: state.user.coins + value }
+                };
             }),
         }),
         {
