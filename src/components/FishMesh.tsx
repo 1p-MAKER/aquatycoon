@@ -33,12 +33,14 @@ const ChromaKeyShader = {
     varying vec2 vUv;
     void main() {
       vec4 texColor = texture2D(texture1, vUv);
-      float brightness = length(texColor.rgb);
-      // If pixel is black (low brightness), discard it
-      if (brightness < 0.2) discard;
       
-      // Apply tint (multiply texture color by gene color)
-      gl_FragColor = vec4(texColor.rgb * uColor, texColor.a); 
+      // Use texture alpha
+      if (texColor.a < 0.1) discard;
+      
+      // Use ORIGINAL texture colors. 
+      // Only apply subtle tint if needed, or ignore uColor for specific species logic.
+      // For now, let's trust the texture's colors.
+      gl_FragColor = texColor; 
     }
   `
 };
@@ -53,8 +55,9 @@ export const FishMesh = ({ fish }: FishMeshProps) => {
     const [signal, setSignal] = useState<string | null>(null);
 
     const texture = useTexture(fish.genes.textureInfo || '/textures/goldfish.png');
-    texture.minFilter = 1003; // NearestFilter for pixel art crispness? (Actually 1006 is Linear, 1003 is Nearest)
-    // Three.js constants: NearestFilter = 1003. 
+    texture.minFilter = 1003; // NearestFilter
+    texture.magFilter = 1003; // NearestFilter
+    texture.needsUpdate = true;
 
     // Parse gene color (hex to normalized rgb)
     const geneColor = useMemo(() => {
